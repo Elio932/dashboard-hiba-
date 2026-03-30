@@ -5,7 +5,7 @@
   <title>Tableau de bord Hiba 💜</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-    body { background-color: #1a0a2e; color: #cc99ff; font-family: 'Arial', sans-serif; overflow-x: hidden; display: flex; }
+    body { background: linear-gradient(135deg, #1a0a2e 0%, #2d0a4e 30%, #1a0a3e 60%, #0a0a2e 100%);color: #cc99ff; font-family: 'Arial', sans-serif; overflow-x: hidden; display: flex; }
 
     /* CURSEUR KAWAI */
     #curseur { position: fixed; pointer-events: none; z-index: 99999; font-size: 1.5em; transform: translate(-50%, -50%); transition: transform 0.1s; }
@@ -575,7 +575,7 @@
           }
         });
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,153,204,' + p.alpha + ')'; ctx.fill();
+        ctx.fillStyle = (Math.random() > 0.5 ? 'rgba(204,153,255,' : 'rgba(255,153,204,') + p.alpha + ')'; ctx.fill();
       });
       requestAnimationFrame(animerParticules);
     }
