@@ -5,17 +5,29 @@
   <title>Tableau de bord Hiba 💜</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-    body { background: linear-gradient(135deg, #1a0a2e 0%, #2d0a4e 30%, #1a0a3e 60%, #0a0a2e 100%);color: #cc99ff; font-family: 'Arial', sans-serif; overflow-x: hidden; display: flex; }
+    body { background: linear-gradient(135deg, #1a0a2e 0%, #2d0a4e 30%, #1a0a3e 60%, #0a0a2e 100%); color: #cc99ff; font-family: 'Arial', sans-serif; overflow-x: hidden; display: flex; }
 
     /* CURSEUR KAWAI */
-    #curseur { position: fixed; pointer-events: none; z-index: 99999; font-size: 1.5em; transform: translate(-50%, -50%); transition: transform 0.1s; }
+    #curseur { position: fixed; pointer-events: none; z-index: 99999; font-size: 1.5em; transform: translate(-50%, -50%); }
     #curseur-trail { position: fixed; pointer-events: none; z-index: 99998; width: 10px; height: 10px; border-radius: 50%; background: rgba(204,153,255,0.4); transform: translate(-50%, -50%); transition: left 0.1s, top 0.1s; }
 
     canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
+    /* SURNOMS BTS EN FOND */
+    .surnom-bg { position: fixed; pointer-events: none; z-index: 0; color: rgba(204,153,255,0.04); font-size: 1.5em; font-weight: bold; white-space: nowrap; animation: flotterSurnom linear infinite; }
+    @keyframes flotterSurnom { 0% { transform: translateY(110vh); opacity: 0.04; } 100% { transform: translateY(-10vh); opacity: 0; } }
+
+    /* ETOILES FILANTES */
+    .etoile-filante { position: fixed; width: 3px; height: 3px; background: white; border-radius: 50%; pointer-events: none; z-index: 1; animation: fileEtoile linear forwards; }
+    @keyframes fileEtoile { 0% { transform: translate(0,0); opacity: 1; box-shadow: 0 0 6px white, 60px 0 rgba(255,255,255,0.3), 120px 0 rgba(255,255,255,0.1); } 100% { transform: translate(300px, 300px); opacity: 0; } }
+
+    /* CONFETTIS */
+    .confetti { position: fixed; pointer-events: none; z-index: 9999; width: 8px; height: 8px; border-radius: 2px; animation: tomberConfetti linear forwards; }
+    @keyframes tomberConfetti { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
     /* FOND KAWAI */
-    .kawai-bg { position: fixed; pointer-events: none; z-index: 0; font-size: 2em; animation: flotter linear infinite; opacity: 0.08; }
-    @keyframes flotter { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0.08; } 100% { transform: translateY(-100px) rotate(360deg); opacity: 0; } }
+    .kawai-bg { position: fixed; pointer-events: none; z-index: 0; font-size: 2em; animation: flotter linear infinite; opacity: 0.06; }
+    @keyframes flotter { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0.06; } 100% { transform: translateY(-100px) rotate(360deg); opacity: 0; } }
 
     /* HUD INFO */
     #hud-info { position: fixed; top: 8px; right: 50px; z-index: 50; display: none; gap: 20px; align-items: center; font-size: 0.75em; color: #cc99ff; opacity: 0.7; font-family: monospace; letter-spacing: 1px; }
@@ -24,26 +36,25 @@
     .batterie-fill { height: 100%; background: #cc99ff; border-radius: 2px; transition: width 0.5s; }
 
     /* ECRANS */
-    #loading-screen, #password-screen, #welcome-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a0a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    #loading-screen, #password-screen, #welcome-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a0a2e, #2d0a4e); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     #loading-screen { z-index: 1000; }
     #password-screen { z-index: 999; display: none; }
     #welcome-screen { z-index: 998; display: none; }
     #loading-screen h2 { font-size: 2em; color: #cc99ff; text-shadow: 0 0 20px #cc99ff; margin: 15px 0; }
     #welcome-screen h1 { font-size: 3em; color: #cc99ff; text-shadow: 0 0 20px #cc99ff; animation: pulse 1s infinite; margin: 15px 0; }
     #welcome-screen .sub { font-size: 1.3em; color: #ff99cc; line-height: 1.8; margin-top: 10px; }
-    #welcome-screen .hint { font-size: 1em; margin-top: 30px; opacity: 0.5; color: #cc99ff; }
     .barre-chargement { width: 300px; height: 4px; background: rgba(204,153,255,0.2); border-radius: 10px; overflow: hidden; margin-top: 10px; }
-    .barre-progress { height: 100%; width: 0%; background: linear-gradient(to right, #ff99cc, #cc99ff); border-radius: 10px; transition: width 1.5s ease; }
+    .barre-progress { height: 100%; width: 0%; background: linear-gradient(to right, #9955ff, #ff99cc); border-radius: 10px; transition: width 1.5s ease; }
     #loading-text { color: #ff99cc; margin-top: 10px; font-size: 0.9em; }
     #password-screen p { color: #ff99cc; margin-bottom: 20px; font-size: 1.2em; }
     #password-input { padding: 12px 20px; width: 300px; border-radius: 25px; border: 2px solid #cc99ff; background: rgba(204,153,255,0.05); color: #cc99ff; font-size: 1em; outline: none; text-align: center; margin-top: 10px; cursor: text; }
     #password-input:focus { box-shadow: 0 0 15px #cc99ff; }
-    #password-btn { margin-top: 15px; padding: 10px 30px; background: linear-gradient(135deg, #cc99ff, #ff99cc); border: none; border-radius: 25px; color: white; font-size: 1em; cursor: none; font-weight: bold; transition: all 0.3s; }
+    #password-btn { margin-top: 15px; padding: 10px 30px; background: linear-gradient(135deg, #9955ff, #ff99cc); border: none; border-radius: 25px; color: white; font-size: 1em; cursor: none; font-weight: bold; transition: all 0.3s; }
     #password-btn:hover { box-shadow: 0 0 20px #cc99ff; transform: scale(1.05); }
     #password-error { color: #ff99cc; margin-top: 10px; opacity: 0; transition: opacity 0.3s; font-size: 0.9em; }
 
     /* HUD COINS */
-    .hud-bar { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, #cc99ff, #ff99cc, #cc99ff); z-index: 5; animation: hudScan 3s linear infinite; }
+    .hud-bar { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, #9955ff, #ff99cc, #9955ff); z-index: 5; animation: hudScan 3s linear infinite; }
     @keyframes hudScan { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
     .hud-corner { position: fixed; width: 30px; height: 30px; z-index: 5; opacity: 0.5; }
     .hud-corner-tl { top: 5px; left: 5px; border-top: 2px solid #cc99ff; border-left: 2px solid #cc99ff; }
@@ -51,8 +62,12 @@
     .hud-corner-bl { bottom: 5px; left: 5px; border-bottom: 2px solid #cc99ff; border-left: 2px solid #cc99ff; }
     .hud-corner-br { bottom: 5px; right: 5px; border-bottom: 2px solid #cc99ff; border-right: 2px solid #cc99ff; }
 
-    /* TOILES REMPLACEES PAR COEURS */
-    .deco-coin { position: fixed; z-index: 0; opacity: 0.1; font-size: 8em; pointer-events: none; }
+    /* COOKY L'OURS */
+    #cooky { position: fixed; bottom: 20px; left: 90px; font-size: 3em; z-index: 50; animation: cookyDance 2s ease-in-out infinite; cursor: none; }
+    @keyframes cookyDance { 0%,100% { transform: rotate(-10deg) translateY(0); } 25% { transform: rotate(10deg) translateY(-10px); } 50% { transform: rotate(-5deg) translateY(0); } 75% { transform: rotate(5deg) translateY(-5px); } }
+
+    /* DECO COINS */
+    .deco-coin { position: fixed; z-index: 0; opacity: 0.08; font-size: 8em; pointer-events: none; }
     .deco-tl { top: -20px; left: -20px; }
     .deco-tr { top: -20px; right: -20px; }
 
@@ -89,11 +104,14 @@
     @keyframes pulse { 0%,100% { text-shadow: 0 0 20px #cc99ff, 0 0 40px #9955ff; } 50% { text-shadow: 0 0 40px #cc99ff, 0 0 80px #9955ff, 0 0 120px #ff99cc; } }
     .subtitle { font-size: 1.3em; color: #ff99cc; opacity: 0.9; margin-bottom: 15px; text-shadow: 0 0 10px #ff99cc; }
     h2 { margin-bottom: 20px; font-size: 1.5em; color: #cc99ff; text-shadow: 0 0 10px #cc99ff; opacity: 0.9; }
-    .separateur { width: 80%; height: 1px; background: linear-gradient(to right, transparent, #cc99ff, #ff99cc, transparent); margin: 20px 0; }
+    .separateur { width: 80%; height: 1px; background: linear-gradient(to right, transparent, #9955ff, #ff99cc, transparent); margin: 20px 0; }
     .horloge { font-size: 3em; font-weight: bold; color: #cc99ff; text-shadow: 0 0 30px #cc99ff; margin-top: 15px; text-align: center; }
     .horloge span { font-size: 0.4em; opacity: 0.7; color: #ff99cc; }
 
-    /* BOUTON CHATGPT KAWAI */
+    /* CITATION BTS */
+    #citation-bts { font-size: 1em; color: rgba(204,153,255,0.6); font-style: italic; margin-top: 8px; text-align: center; max-width: 500px; }
+
+    /* BOUTON CHATGPT */
     .jarvis-section { text-align: center; margin: 20px 0; position: relative; z-index: 2; width: 100%; }
     .jarvis-btn { position: relative; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 180px; height: 180px; border-radius: 50%; border: 3px solid #cc99ff; cursor: none; transition: all 0.3s; background: rgba(204,153,255,0.05); z-index: 2; }
     .jarvis-btn:hover { box-shadow: 0 0 40px #cc99ff, 0 0 80px #ff99cc; transform: scale(1.05); }
@@ -117,17 +135,17 @@
     .recherche input { width: 400px; padding: 12px 20px; border-radius: 30px 0 0 30px; border: 2px solid #cc99ff; background: rgba(204,153,255,0.05); color: #cc99ff; font-size: 1em; outline: none; cursor: text; }
     .recherche input:focus { box-shadow: 0 0 15px #cc99ff; }
     .recherche input::placeholder { color: rgba(204,153,255,0.5); }
-    .recherche button { padding: 12px 20px; border-radius: 0 30px 30px 0; border: none; background: linear-gradient(135deg, #cc99ff, #ff99cc); color: white; font-size: 1em; cursor: none; font-weight: bold; }
+    .recherche button { padding: 12px 20px; border-radius: 0 30px 30px 0; border: none; background: linear-gradient(135deg, #9955ff, #ff99cc); color: white; font-size: 1em; cursor: none; font-weight: bold; }
 
     /* GRILLES */
     .grille { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
     .grille a { padding: 12px 22px; border: 2px solid #cc99ff; border-radius: 20px; color: #cc99ff; text-decoration: none; font-size: 1em; transition: all 0.3s; background: rgba(204,153,255,0.05); }
-    .grille a:hover { background: linear-gradient(135deg, #cc99ff, #ff99cc); color: white; box-shadow: 0 0 20px #cc99ff; transform: translateY(-3px) scale(1.05); }
+    .grille a:hover { background: linear-gradient(135deg, #9955ff, #ff99cc); color: white; box-shadow: 0 0 20px #cc99ff; transform: translateY(-3px) scale(1.05); }
 
     /* DOSSIERS */
     .dossier { margin-bottom: 10px; width: 100%; text-align: center; }
     .dossier-btn { padding: 10px 30px; background: rgba(204,153,255,0.05); border: 2px solid #cc99ff; border-radius: 20px; color: #cc99ff; font-size: 1em; cursor: none; transition: all 0.3s; }
-    .dossier-btn:hover { background: linear-gradient(135deg, #cc99ff, #ff99cc); color: white; box-shadow: 0 0 20px #cc99ff; }
+    .dossier-btn:hover { background: linear-gradient(135deg, #9955ff, #ff99cc); color: white; box-shadow: 0 0 20px #cc99ff; }
     .dossier-contenu { display: none; margin-top: 10px; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .dossier-contenu a { padding: 8px 18px; border: 1px solid #ff99cc; border-radius: 15px; color: #ff99cc; text-decoration: none; font-size: 0.9em; transition: all 0.3s; background: rgba(255,153,204,0.05); }
     .dossier-contenu a:hover { background: #ff99cc; color: white; box-shadow: 0 0 15px #ff99cc; }
@@ -137,14 +155,14 @@
     textarea:focus { box-shadow: 0 0 15px #cc99ff; }
     textarea::placeholder { color: rgba(204,153,255,0.4); }
     .save-btn { margin-top: 10px; padding: 10px 25px; background: rgba(204,153,255,0.05); border: 2px solid #cc99ff; border-radius: 20px; color: #cc99ff; font-size: 1em; cursor: none; transition: all 0.3s; }
-    .save-btn:hover { background: linear-gradient(135deg, #cc99ff, #ff99cc); color: white; box-shadow: 0 0 20px #cc99ff; }
+    .save-btn:hover { background: linear-gradient(135deg, #9955ff, #ff99cc); color: white; box-shadow: 0 0 20px #cc99ff; }
     #notif-save { margin-left: 10px; font-size: 0.9em; opacity: 0.7; }
 
     /* TODO */
     .todo-input-zone { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
     .todo-input-zone input { flex: 1; padding: 10px 20px; border-radius: 25px; border: 2px solid #cc99ff; background: rgba(204,153,255,0.05); color: #cc99ff; font-size: 1em; outline: none; cursor: text; }
     .todo-input-zone input::placeholder { color: rgba(204,153,255,0.4); }
-    .todo-input-zone button { padding: 10px 20px; background: linear-gradient(135deg, #cc99ff, #ff99cc); border: none; border-radius: 25px; color: white; font-size: 1em; cursor: none; font-weight: bold; }
+    .todo-input-zone button { padding: 10px 20px; background: linear-gradient(135deg, #9955ff, #ff99cc); border: none; border-radius: 25px; color: white; font-size: 1em; cursor: none; font-weight: bold; }
     .todo-item { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border: 1px solid rgba(204,153,255,0.3); border-radius: 15px; margin-bottom: 8px; background: rgba(204,153,255,0.03); width: 100%; }
     .todo-item input[type=checkbox] { accent-color: #cc99ff; width: 16px; height: 16px; cursor: pointer; }
     .todo-item span { flex: 1; text-align: left; color: #cc99ff; }
@@ -158,7 +176,6 @@
     .postit:hover { transform: rotate(0deg) scale(1.05); z-index: 10; }
     .postit textarea { background: transparent; border: none; width: 100%; height: 100px; resize: none; font-size: 0.9em; color: #1a0a2e; font-family: Arial, sans-serif; outline: none; cursor: text; }
     .postit-delete { position: absolute; top: 5px; right: 8px; background: none; border: none; cursor: none; opacity: 0.5; font-size: 1em; color: #1a0a2e; }
-    .postit-delete:hover { opacity: 1; }
     .add-postit { width: 180px; min-height: 150px; border: 2px dashed rgba(204,153,255,0.4); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2em; color: rgba(204,153,255,0.4); cursor: none; transition: all 0.3s; }
     .add-postit:hover { border-color: #cc99ff; color: #cc99ff; box-shadow: 0 0 15px rgba(204,153,255,0.3); }
 
@@ -167,7 +184,7 @@
     .minuteur-display { font-size: 5em; font-weight: bold; color: #cc99ff; text-shadow: 0 0 30px #cc99ff; font-family: monospace; margin: 20px 0; }
     .minuteur-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
     .minuteur-btns button { padding: 10px 20px; background: transparent; border: 2px solid #cc99ff; border-radius: 20px; color: #cc99ff; font-size: 1em; cursor: none; transition: all 0.3s; }
-    .minuteur-btns button:hover { background: linear-gradient(135deg, #cc99ff, #ff99cc); color: white; box-shadow: 0 0 15px #cc99ff; }
+    .minuteur-btns button:hover { background: linear-gradient(135deg, #9955ff, #ff99cc); color: white; box-shadow: 0 0 15px #cc99ff; }
     .minuteur-presets { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .minuteur-presets button { padding: 8px 15px; background: rgba(204,153,255,0.05); border: 1px solid rgba(204,153,255,0.4); border-radius: 15px; color: #cc99ff; font-size: 0.85em; cursor: none; transition: all 0.3s; }
     .minuteur-presets button:hover { border-color: #cc99ff; box-shadow: 0 0 10px #cc99ff; }
@@ -178,25 +195,37 @@
     .calendrier { width: 100%; }
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     .cal-header button { background: transparent; border: 1px solid #cc99ff; color: #cc99ff; border-radius: 10px; padding: 5px 12px; cursor: none; transition: all 0.3s; font-size: 1em; }
-    .cal-header button:hover { background: linear-gradient(135deg, #cc99ff, #ff99cc); color: white; }
+    .cal-header button:hover { background: linear-gradient(135deg, #9955ff, #ff99cc); color: white; }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; width: 100%; }
     .cal-day-name { text-align: center; font-size: 0.75em; color: #ff99cc; padding: 5px; opacity: 0.8; }
-    .cal-day { text-align: center; padding: 8px 5px; border-radius: 10px; font-size: 0.85em; border: 1px solid transparent; transition: all 0.3s; cursor: none; }
+    .cal-day { text-align: center; padding: 8px 5px; border-radius: 10px; font-size: 0.85em; border: 1px solid transparent; transition: all 0.3s; cursor: none; position: relative; }
     .cal-day:hover { border-color: #cc99ff; background: rgba(204,153,255,0.1); }
     .cal-day.today { background: rgba(204,153,255,0.2); border-color: #cc99ff; box-shadow: 0 0 10px rgba(204,153,255,0.3); font-weight: bold; }
     .cal-day.autre-mois { opacity: 0.3; }
+    .cal-day.anniversaire { background: rgba(255,153,204,0.15); border-color: #ff99cc; }
+    .cal-day.anniversaire::after { content: '🎂'; font-size: 0.6em; position: absolute; top: 1px; right: 2px; }
+    .anniv-legende { margin-top: 15px; width: 100%; }
+    .anniv-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid rgba(255,153,204,0.3); border-radius: 10px; margin-bottom: 5px; font-size: 0.9em; background: rgba(255,153,204,0.05); }
 
     /* METEO */
     .meteo-widget { width: 100%; border: 1px solid rgba(204,153,255,0.3); border-radius: 20px; padding: 20px; background: rgba(204,153,255,0.03); margin-bottom: 15px; }
     .meteo-search { display: flex; gap: 10px; margin-bottom: 20px; }
     .meteo-search input { flex: 1; padding: 10px 20px; border-radius: 25px; border: 2px solid #cc99ff; background: rgba(204,153,255,0.05); color: #cc99ff; font-size: 1em; outline: none; cursor: text; }
     .meteo-search input::placeholder { color: rgba(204,153,255,0.4); }
-    .meteo-search button { padding: 10px 20px; background: linear-gradient(135deg, #cc99ff, #ff99cc); border: none; border-radius: 25px; color: white; font-size: 1em; cursor: none; font-weight: bold; }
+    .meteo-search button { padding: 10px 20px; background: linear-gradient(135deg, #9955ff, #ff99cc); border: none; border-radius: 25px; color: white; font-size: 1em; cursor: none; font-weight: bold; }
     .meteo-result { text-align: center; }
     .meteo-icon { font-size: 4em; margin-bottom: 10px; }
     .meteo-temp { font-size: 2.5em; font-weight: bold; color: #cc99ff; text-shadow: 0 0 20px #cc99ff; }
     .meteo-desc { color: #ff99cc; font-size: 1.1em; margin-top: 5px; }
     .meteo-ville { opacity: 0.6; font-size: 0.9em; margin-top: 5px; }
+
+    /* DISCOGRAPHIE */
+    .disco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
+    .disco-item { padding: 15px; border: 1px solid rgba(204,153,255,0.3); border-radius: 15px; text-align: center; background: rgba(204,153,255,0.03); transition: all 0.3s; text-decoration: none; color: #cc99ff; cursor: none; }
+    .disco-item:hover { border-color: #cc99ff; box-shadow: 0 0 20px rgba(204,153,255,0.3); transform: translateY(-3px); background: rgba(204,153,255,0.1); }
+    .disco-emoji { font-size: 2.5em; margin-bottom: 8px; }
+    .disco-titre { font-size: 0.9em; font-weight: bold; color: #cc99ff; }
+    .disco-annee { font-size: 0.75em; color: #ff99cc; opacity: 0.7; margin-top: 3px; }
 
     /* NEWS BTS */
     .bts-news { width: 100%; }
@@ -212,6 +241,7 @@
   <div id="curseur">🌸</div>
   <div id="curseur-trail"></div>
   <div id="flash-overlay"></div>
+  <div id="cooky">🐻</div>
 
   <div class="hud-bar"></div>
   <div class="hud-corner hud-corner-tl"></div>
@@ -232,40 +262,40 @@
   <!-- CHARGEMENT -->
   <div id="loading-screen">
     <div style="font-size:5em;animation:kawaiSpin 2s ease-in-out infinite;display:inline-block">🐻</div>
-    <h2 style="color:#cc99ff;text-shadow:0 0 20px #cc99ff">TABLEAU DE BORD HIBA 💜</h2>
+    <h2>TABLEAU DE BORD HIBA 💜</h2>
     <div class="barre-chargement"><div class="barre-progress" id="barre-progress"></div></div>
-    <p id="loading-text" style="color:#ff99cc;margin-top:10px">Initialisation du système kawai... 🌸</p>
+    <p id="loading-text">Initialisation kawai... 🌸</p>
   </div>
 
   <!-- MOT DE PASSE -->
   <div id="password-screen">
     <div style="font-size:4em;animation:kawaiPop 1s infinite;display:inline-block">🐻💜</div>
     <h2 style="color:#cc99ff;text-shadow:0 0 20px #cc99ff;margin:15px 0">ACCÈS RESTREINT 🌸</h2>
-    <p style="color:#ff99cc;margin-bottom:20px;font-size:1.2em">Bonjour Hiba, entre ton mot de passe ✨</p>
+    <p>Bonjour Hiba, entre ton mot de passe ✨</p>
     <input type="password" id="password-input" placeholder="Mot de passe... 💜">
     <button id="password-btn" onclick="verifierMdp()">ENTRER ✨</button>
-    <p id="password-error" style="opacity:0;margin-top:10px;font-size:0.9em;color:#ff99cc">❌ Mauvais mot de passe !</p>
+    <p id="password-error">❌ Mauvais mot de passe !</p>
   </div>
 
   <!-- BIENVENUE -->
   <div id="welcome-screen">
     <div style="font-size:5em;animation:kawaiSpin 2s ease-in-out infinite;display:inline-block">🐻</div>
     <h1>Bienvenue Hiba ! 💜</h1>
-    <p class="sub">ARMY pour toujours 💜🌸<br>Ton espace kawai est prêt !<br>BTS forever ✨</p>
-    <p class="hint" style="margin-top:30px;opacity:0.5;font-size:1em">Chargement de votre univers... 🌸</p>
+    <p class="sub">ARMY pour toujours 💜🌸<br>Ton espace BTS kawai est prêt !<br>✨ Life goes on ✨</p>
+    <p style="margin-top:30px;opacity:0.5;font-size:1em;color:#cc99ff">Chargement de votre univers BTS... 🌸</p>
   </div>
 
   <!-- PANEL BTS -->
   <div id="bts-panel">
     <h3>💜 BTS</h3>
-    <div class="contact"><div class="contact-avatar">👑</div><div class="contact-info"><div class="contact-name">RM</div><div class="contact-status"><span class="status-dot"></span>En studio 🎵</div></div></div>
-    <div class="contact"><div class="contact-avatar">🌟</div><div class="contact-info"><div class="contact-name">Jin</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
-    <div class="contact"><div class="contact-avatar">🔥</div><div class="contact-info"><div class="contact-name">Suga</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
-    <div class="contact"><div class="contact-avatar">☀️</div><div class="contact-info"><div class="contact-name">J-Hope</div><div class="contact-status"><span class="status-dot"></span>En tournée 🎤</div></div></div>
-    <div class="contact"><div class="contact-avatar">💜</div><div class="contact-info"><div class="contact-name">Jimin</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
+    <div class="contact"><div class="contact-avatar">👑</div><div class="contact-info"><div class="contact-name">RM (Namjoon)</div><div class="contact-status"><span class="status-dot"></span>En studio 🎵</div></div></div>
+    <div class="contact"><div class="contact-avatar">🌟</div><div class="contact-info"><div class="contact-name">Jin (Seokjin)</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
+    <div class="contact"><div class="contact-avatar">🔥</div><div class="contact-info"><div class="contact-name">Suga (Yoongi)</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
+    <div class="contact"><div class="contact-avatar">☀️</div><div class="contact-info"><div class="contact-name">J-Hope (Hoseok)</div><div class="contact-status"><span class="status-dot"></span>En tournée 🎤</div></div></div>
+    <div class="contact"><div class="contact-avatar">💜</div><div class="contact-info"><div class="contact-name">Jimin (Jimin)</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
     <div class="contact"><div class="contact-avatar">🐯</div><div class="contact-info"><div class="contact-name">V (Taehyung)</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
-    <div class="contact"><div class="contact-avatar">🐰</div><div class="contact-info"><div class="contact-name">Jungkook</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
-    <div class="contact"><div class="contact-avatar">👧</div><div class="contact-info"><div class="contact-name">Moi (Hiba)</div><div class="contact-status"><span class="status-dot"></span>ARMY 💜</div></div></div>
+    <div class="contact"><div class="contact-avatar">🐰</div><div class="contact-info"><div class="contact-name">Jungkook (JK)</div><div class="contact-status"><span class="status-dot mission"></span>Service militaire</div></div></div>
+    <div class="contact"><div class="contact-avatar">👧</div><div class="contact-info"><div class="contact-name">Hiba</div><div class="contact-status"><span class="status-dot"></span>ARMY 💜 forever</div></div></div>
   </div>
 
   <!-- SIDEBAR -->
@@ -279,6 +309,7 @@
     <div class="sidebar-btn" onclick="afficherSection('minuteur', event)">⏱️<span class="sidebar-tooltip">Minuteur</span></div>
     <div class="sidebar-btn" onclick="afficherSection('calendrier', event)">🗓️<span class="sidebar-tooltip">Calendrier</span></div>
     <div class="sidebar-btn" onclick="afficherSection('meteo', event)">🌦️<span class="sidebar-tooltip">Météo</span></div>
+    <div class="sidebar-btn" onclick="afficherSection('disco', event)">🎵<span class="sidebar-tooltip">Discographie</span></div>
     <div class="sidebar-btn" onclick="afficherSection('bts', event)">💜<span class="sidebar-tooltip">News BTS</span></div>
   </div>
 
@@ -292,6 +323,7 @@
         <div class="main-logo">🐻💜</div>
         <h1>Bonjour Hiba ! 🌸</h1>
         <p class="subtitle">ARMY forever 💜 BTS dans le cœur ✨</p>
+        <p id="citation-bts"></p>
       </div>
       <div class="horloge" id="horloge"></div>
       <div class="separateur"></div>
@@ -333,6 +365,7 @@
         <a href="https://www.canva.com/fr_fr/" target="_blank" onclick="flashLancement()">🎨 Canva</a>
         <a href="https://www.aucollege84.vaucluse.fr/auth/saml/wayf?callback=https%3A%2F%2Fwww.aucollege84.vaucluse.fr%2F#/" target="_blank" onclick="flashLancement()">🏫 ENT</a>
         <a href="https://mail.google.com" target="_blank" onclick="flashLancement()">📧 Gmail</a>
+        <a href="https://weverse.io" target="_blank" onclick="flashLancement()">💜 Weverse</a>
       </div>
     </div>
 
@@ -434,6 +467,7 @@
           <button onclick="changerMois(1)">▶</button>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
+        <div class="anniv-legende" id="anniv-legende"></div>
       </div>
     </div>
 
@@ -452,6 +486,23 @@
       </div>
     </div>
 
+    <!-- DISCOGRAPHIE -->
+    <div class="section" id="section-disco">
+      <h2>🎵 Discographie BTS 💜</h2>
+      <div class="separateur"></div>
+      <div class="disco-grid">
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Dynamite" target="_blank" onclick="flashLancement()"><div class="disco-emoji">💥</div><div class="disco-titre">Dynamite</div><div class="disco-annee">2020</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Butter" target="_blank" onclick="flashLancement()"><div class="disco-emoji">🧈</div><div class="disco-titre">Butter</div><div class="disco-annee">2021</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Boy+With+Luv" target="_blank" onclick="flashLancement()"><div class="disco-emoji">💜</div><div class="disco-titre">Boy With Luv</div><div class="disco-annee">2019</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Life+Goes+On" target="_blank" onclick="flashLancement()"><div class="disco-emoji">🌿</div><div class="disco-titre">Life Goes On</div><div class="disco-annee">2020</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+DNA" target="_blank" onclick="flashLancement()"><div class="disco-emoji">🧬</div><div class="disco-titre">DNA</div><div class="disco-annee">2017</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Fake+Love" target="_blank" onclick="flashLancement()"><div class="disco-emoji">💔</div><div class="disco-titre">Fake Love</div><div class="disco-annee">2018</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Permission+to+Dance" target="_blank" onclick="flashLancement()"><div class="disco-emoji">💃</div><div class="disco-titre">Permission to Dance</div><div class="disco-annee">2021</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Spring+Day" target="_blank" onclick="flashLancement()"><div class="disco-emoji">🌸</div><div class="disco-titre">Spring Day</div><div class="disco-annee">2017</div></a>
+        <a class="disco-item" href="https://www.youtube.com/results?search_query=BTS+Black+Swan" target="_blank" onclick="flashLancement()"><div class="disco-emoji">🦢</div><div class="disco-titre">Black Swan</div><div class="disco-annee">2020</div></a>
+      </div>
+    </div>
+
     <!-- NEWS BTS -->
     <div class="section" id="section-bts">
       <h2>💜 News BTS</h2>
@@ -459,10 +510,10 @@
       <div class="bts-news">
         <div class="news-item"><h3>💜 BTS : Retour prévu en 2025 !</h3><p>Après leur service militaire, les membres de BTS devraient se retrouver courant 2025 pour un grand retour.</p><div class="news-date">Weverse Magazine</div></div>
         <div class="news-item"><h3>🐰 Jungkook : Nouveau single solo</h3><p>Le maknae de BTS prépare de nouvelles surprises musicales pour ses fans ARMY du monde entier.</p><div class="news-date">BigHit Music</div></div>
-        <div class="news-item"><h3>🐯 V (Taehyung) : Exposition photo</h3><p>Taehyung a partagé ses œuvres photographiques avec les fans, révélant son talent artistique.</p><div class="news-date">Weverse</div></div>
+        <div class="news-item"><h3>🐯 V (Taehyung) : Exposition photo</h3><p>Taehyung a partagé ses œuvres photographiques avec les fans, révélant son talent artistique unique.</p><div class="news-date">Weverse</div></div>
         <div class="news-item"><h3>☀️ J-Hope : Tournée mondiale</h3><p>J-Hope a enchaîné les concerts en solo avec son énergie légendaire, ravissant les ARMY du monde entier.</p><div class="news-date">BigHit Music</div></div>
-        <div class="news-item"><h3>👑 RM : Album solo "Right Place, Wrong Person"</h3><p>RM a sorti un album solo introspectif et poétique, acclamé par la critique internationale.</p><div class="news-date">BigHit Music</div></div>
-        <div class="news-item"><h3>💜 ARMY : La fanbase la plus dévouée</h3><p>Pour la Xème année consécutive, l'ARMY est élue fanbase la plus active et la plus solidaire au monde.</p><div class="news-date">Billboard</div></div>
+        <div class="news-item"><h3>👑 RM : Album solo acclamé</h3><p>RM a sorti un album solo introspectif et poétique, acclamé par la critique internationale.</p><div class="news-date">BigHit Music</div></div>
+        <div class="news-item"><h3>💜 ARMY : La fanbase la plus dévouée</h3><p>Pour la Xème année consécutive, l'ARMY est élue fanbase la plus active et solidaire au monde.</p><div class="news-date">Billboard</div></div>
       </div>
     </div>
 
@@ -470,6 +521,32 @@
 
   <script>
     const MDP = "2012nass";
+
+    // ANNIVERSAIRES BTS
+    const anniversaires = [
+      { nom: 'Jin 🌟', mois: 11, jour: 4, emoji: '🎂' },
+      { nom: 'Suga 🔥', mois: 3, jour: 9, emoji: '🎂' },
+      { nom: 'J-Hope ☀️', mois: 2, jour: 18, emoji: '🎂' },
+      { nom: 'RM 👑', mois: 9, jour: 12, emoji: '🎂' },
+      { nom: 'Jimin 💜', mois: 10, jour: 13, emoji: '🎂' },
+      { nom: 'V 🐯', mois: 12, jour: 30, emoji: '🎂' },
+      { nom: 'Jungkook 🐰', mois: 9, jour: 1, emoji: '🎂' }
+    ];
+
+    // CITATIONS BTS
+    const citations = [
+      '"Love yourself" — BTS 💜',
+      '"Life goes on" — BTS 🌿',
+      '"You\'re the cause of my euphoria" — Jungkook 🐰',
+      '"Even if you\'re not perfect, you\'re limited edition" — BTS ✨',
+      '"Army, I love you" — BTS 💜',
+      '"Don\'t be trapped in someone else\'s dream" — RM 👑',
+      '"The universe has turned to come see you" — BTS 🌟',
+      '"Wanna be your euphoria" — BTS 💫'
+    ];
+
+    // SURNOMS BTS EN FOND
+    const surnoms = ['Namjoon','Seokjin','Yoongi','Hoseok','Jimin','Taehyung','Jungkook','RM','Jin','Suga','J-Hope','V','JK','ARMY','BTS','💜','방탄소년단'];
 
     // CURSEUR
     const curseur = document.getElementById('curseur');
@@ -480,19 +557,61 @@
       setTimeout(() => { trail.style.left = e.clientX + 'px'; trail.style.top = e.clientY + 'px'; }, 80);
     });
 
+    // SURNOMS FLOTTANTS
+    function creerSurnom() {
+      const el = document.createElement('div');
+      el.className = 'surnom-bg';
+      el.textContent = surnoms[Math.floor(Math.random() * surnoms.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.animationDuration = (10 + Math.random() * 15) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 25000);
+    }
+    setInterval(creerSurnom, 1500);
+
+    // ETOILES FILANTES
+    function creerEtoile() {
+      const el = document.createElement('div');
+      el.className = 'etoile-filante';
+      el.style.left = Math.random() * 80 + 'vw';
+      el.style.top = Math.random() * 50 + 'vh';
+      el.style.animationDuration = (1 + Math.random() * 2) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+    setInterval(creerEtoile, 3000);
+
     // ELEMENTS KAWAI FLOTTANTS
-    const emojisKawai = ['💜','🌸','✨','🐻','⭐','💫','🌟','🎵','💕'];
+    const emojisKawai = ['💜','🌸','✨','⭐','💫','🌟','🎵','💕','🐻'];
     function creerKawai() {
       const el = document.createElement('div');
       el.className = 'kawai-bg';
       el.textContent = emojisKawai[Math.floor(Math.random() * emojisKawai.length)];
       el.style.left = Math.random() * 100 + 'vw';
       el.style.animationDuration = (8 + Math.random() * 10) + 's';
-      el.style.fontSize = (1 + Math.random() * 2) + 'em';
+      el.style.fontSize = (1 + Math.random() * 1.5) + 'em';
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 18000);
     }
     setInterval(creerKawai, 2000);
+
+    // CONFETTIS
+    function lancerConfettis() {
+      const couleurs = ['#cc99ff','#ff99cc','#9955ff','#ffb3d9','#d4a8ff','white'];
+      for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'confetti';
+          el.style.left = Math.random() * 100 + 'vw';
+          el.style.background = couleurs[Math.floor(Math.random() * couleurs.length)];
+          el.style.animationDuration = (2 + Math.random() * 3) + 's';
+          el.style.width = (5 + Math.random() * 8) + 'px';
+          el.style.height = (5 + Math.random() * 8) + 'px';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        }, i * 50);
+      }
+    }
 
     // CHARGEMENT
     window.addEventListener('load', () => {
@@ -514,6 +633,7 @@
       const input = document.getElementById('password-input').value;
       const error = document.getElementById('password-error');
       if (input === MDP) {
+        lancerConfettis();
         document.getElementById('password-screen').style.display = 'none';
         document.getElementById('welcome-screen').style.display = 'flex';
         setTimeout(() => {
@@ -522,6 +642,7 @@
           document.getElementById('sidebar').style.display = 'flex';
           document.getElementById('bts-panel').style.display = 'block';
           document.getElementById('hud-info').style.display = 'flex';
+          document.getElementById('cooky').style.display = 'block';
           setTimeout(() => { document.getElementById('section-accueil').classList.add('visible'); }, 50);
         }, 3000);
       } else {
@@ -530,6 +651,7 @@
         document.getElementById('password-input').value = '';
       }
     }
+    document.getElementById('cooky').style.display = 'none';
     document.addEventListener('keypress', function(e) { if (e.key === 'Enter') verifierMdp(); });
 
     // SECTIONS
@@ -542,7 +664,7 @@
       setTimeout(() => section.classList.add('visible'), 50);
     }
 
-    // FLASH KAWAI
+    // FLASH
     function flashLancement() {
       const flash = document.getElementById('flash-overlay');
       flash.style.opacity = '1';
@@ -575,7 +697,8 @@
           }
         });
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = (Math.random() > 0.5 ? 'rgba(204,153,255,' : 'rgba(255,153,204,') + p.alpha + ')'; ctx.fill();
+        ctx.fillStyle = (Math.random() > 0.5 ? 'rgba(204,153,255,' : 'rgba(255,153,204,') + p.alpha + ')';
+        ctx.fill();
       });
       requestAnimationFrame(animerParticules);
     }
@@ -584,9 +707,9 @@
     // HORLOGE
     function majHorloge() {
       const maintenant = new Date();
-      const heures = String(maintenant.getHours()).padStart(2, '0');
-      const minutes = String(maintenant.getMinutes()).padStart(2, '0');
-      const secondes = String(maintenant.getSeconds()).padStart(2, '0');
+      const heures = String(maintenant.getHours()).padStart(2,'0');
+      const minutes = String(maintenant.getMinutes()).padStart(2,'0');
+      const secondes = String(maintenant.getSeconds()).padStart(2,'0');
       const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
       const mois = ['Jan','Fev','Mar','Avr','Mai','Jun','Jul','Aou','Sep','Oct','Nov','Dec'];
       const el = document.getElementById('horloge');
@@ -595,6 +718,9 @@
     }
     setInterval(majHorloge, 1000);
     majHorloge();
+
+    // CITATION ALEATOIRE
+    document.getElementById('citation-bts').textContent = citations[Math.floor(Math.random() * citations.length)];
 
     // BATTERIE
     async function majBatterie() {
@@ -618,7 +744,7 @@
     function activerJarvis(e) {
       const status = document.getElementById('jarvis-status');
       status.innerHTML = '✨ Connexion kawai en cours... 💜';
-      const emojis = ['💜','🌸','✨','⭐','💫','🐻','💕','🌟'];
+      const emojis = ['💜','🌸','✨','⭐','💫','🐻','💕','🌟','🎵'];
       for (let i = 0; i < 30; i++) {
         const p = document.createElement('div');
         p.className = 'particule-explosion';
@@ -698,7 +824,7 @@
     let minuteurInterval = null, minuteurSecondes = 0, minuteurEnCours = false;
     function setMinuteur(min) { minuteurSecondes = min * 60; afficherMinuteur(); }
     function afficherMinuteur() {
-      const m = Math.floor(minuteurSecondes / 60), s = minuteurSecondes % 60;
+      const m = Math.floor(minuteurSecondes/60), s = minuteurSecondes % 60;
       document.getElementById('minuteur-display').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     }
     function demarrerMinuteur() {
@@ -722,12 +848,12 @@
     function pauseChrono() { clearInterval(chronoInterval); chronoEnCours = false; }
     function resetChrono() { clearInterval(chronoInterval); chronoEnCours = false; chronoMs = 0; afficherChrono(); }
 
-    // CALENDRIER
+    // CALENDRIER AVEC ANNIVERSAIRES
     let calDate = new Date();
     function afficherCalendrier() {
       const annee = calDate.getFullYear(), mois = calDate.getMonth();
       const moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-      document.getElementById('cal-titre').textContent = moisNoms[mois] + ' ' + annee;
+      document.getElementById('cal-titre').textContent = moisNoms[mois] + ' ' + annee + ' 💜';
       const grid = document.getElementById('cal-grid');
       grid.innerHTML = '';
       ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].forEach(j => { grid.innerHTML += '<div class="cal-day-name">' + j + '</div>'; });
@@ -735,23 +861,34 @@
       const dernier = new Date(annee, mois + 1, 0);
       let jourDebut = premier.getDay() === 0 ? 6 : premier.getDay() - 1;
       const today = new Date();
+      const annivCeMois = anniversaires.filter(a => a.mois - 1 === mois);
       for (let i = 0; i < jourDebut; i++) { const j = new Date(annee, mois, -jourDebut + i + 1); grid.innerHTML += '<div class="cal-day autre-mois">' + j.getDate() + '</div>'; }
       for (let d = 1; d <= dernier.getDate(); d++) {
         const isToday = d === today.getDate() && mois === today.getMonth() && annee === today.getFullYear();
-        grid.innerHTML += '<div class="cal-day' + (isToday ? ' today' : '') + '">' + d + '</div>';
+        const isAnniv = annivCeMois.some(a => a.jour === d);
+        grid.innerHTML += '<div class="cal-day' + (isToday ? ' today' : '') + (isAnniv ? ' anniversaire' : '') + '">' + d + '</div>';
+      }
+      const legende = document.getElementById('anniv-legende');
+      if (annivCeMois.length > 0) {
+        legende.innerHTML = '<h2 style="font-size:1em;margin-bottom:10px">🎂 Anniversaires ce mois</h2>';
+        annivCeMois.forEach(a => {
+          legende.innerHTML += '<div class="anniv-item">🎂 <strong>' + a.nom + '</strong> — ' + a.jour + ' ' + ['Jan','Fev','Mar','Avr','Mai','Jun','Jul','Aou','Sep','Oct','Nov','Dec'][a.mois-1] + ' 💜</div>';
+        });
+      } else {
+        legende.innerHTML = '<p style="opacity:0.5;font-size:0.9em;text-align:center">Pas d\'anniversaire BTS ce mois 🌸</p>';
       }
     }
     function changerMois(dir) { calDate.setMonth(calDate.getMonth() + dir); afficherCalendrier(); }
     afficherCalendrier();
 
     // METEO
-    const meteoDonnees = { 'paris': { temp: 14, desc: 'Nuageux', icon: '☁️' }, 'marseille': { temp: 19, desc: 'Ensoleillé', icon: '☀️' }, 'lyon': { temp: 12, desc: 'Pluvieux', icon: '🌧️' }, 'nice': { temp: 22, desc: 'Beau temps', icon: '🌤️' }, 'bordeaux': { temp: 16, desc: 'Partiellement nuageux', icon: '⛅' }, 'toulouse': { temp: 17, desc: 'Ensoleillé', icon: '☀️' }, 'nantes': { temp: 11, desc: 'Pluvieux', icon: '🌧️' }, 'lille': { temp: 9, desc: 'Couvert', icon: '🌥️' } };
+    const meteoDonnees = { 'paris': { temp: 14, desc: 'Nuageux', icon: '☁️' }, 'marseille': { temp: 19, desc: 'Ensoleillé', icon: '☀️' }, 'lyon': { temp: 12, desc: 'Pluvieux', icon: '🌧️' }, 'nice': { temp: 22, desc: 'Beau temps', icon: '🌤️' }, 'bordeaux': { temp: 16, desc: 'Partiellement nuageux', icon: '⛅' }, 'toulouse': { temp: 17, desc: 'Ensoleillé', icon: '☀️' }, 'seoul': { temp: 8, desc: 'Frais et nuageux', icon: '🌥️' }, 'busan': { temp: 11, desc: 'Venteux', icon: '💨' } };
     function chercherMeteo() {
       const ville = document.getElementById('meteo-input').value.toLowerCase().trim();
       const result = document.getElementById('meteo-result');
       const data = meteoDonnees[ville];
       if (data) { result.innerHTML = '<div class="meteo-icon">' + data.icon + '</div><div class="meteo-temp">' + data.temp + '°C</div><div class="meteo-desc">' + data.desc + '</div><div class="meteo-ville">📍 ' + ville.charAt(0).toUpperCase() + ville.slice(1) + '</div>'; }
-      else { result.innerHTML = '<p style="color:#ff99cc;opacity:0.6">Ville non trouvée 🌸 Essaie : Paris, Marseille, Lyon, Nice...</p>'; }
+      else { result.innerHTML = '<p style="color:#ff99cc;opacity:0.6">Ville non trouvée 🌸 Essaie : Paris, Marseille, Lyon, Nice, Seoul, Busan...</p>'; }
     }
     document.getElementById('meteo-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') chercherMeteo(); });
   </script>
